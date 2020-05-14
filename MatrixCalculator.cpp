@@ -114,6 +114,24 @@ public:
     }
 
 
+    void add(int threadNumber) {
+
+        mtx.lock();
+
+        for (int i = threadNumber; i < threadNumber + 1; i++) {
+            for (int j = 0; j < this->matrixesSize; j++) {
+
+                result[i][j] = 0;
+                result[i][j] = firstMatrix.getElement(i, j) + secondMatrix.getElement(i, j);
+                
+            }
+        }
+
+        mtx.unlock();
+
+    }
+
+
     void printResult() {
         for (int i = 0; i < this->matrixesSize; i++) {
             for (int j = 0; j < this->matrixesSize; j++) {
@@ -149,10 +167,15 @@ public:
 };
 
 class Menu {
+
 public:
+
+
+
     void displayMenu() {
 
         int matrixExampleSize = 3;
+
 
         Matrix A = Matrix(matrixExampleSize);
         A.setRandomElements();
@@ -166,19 +189,22 @@ public:
 
 
         Calculator calc = Calculator(A, B);
+        
 
         cout << "\nChoose an option: " << endl;
         cout << "1.Matrix multiply.\n" << endl;
+        cout << "2.Matrix add.\n" << endl;
 
         int choice;
         cin >> choice;
+
+        const int beginLoop = 0;
 
         switch (choice) {
             case 1: {
 
                 vector <thread> threads;
 
-                const int beginLoop = 0;
                 for (int i = beginLoop; i < matrixExampleSize; i++) {
                     thread t(&Calculator::multiply, calc, i);
                     threads.push_back(move(t));
@@ -188,8 +214,26 @@ public:
                     t.join();
                 }
 
-                cout << "\n\RESULT MATRIX: " << endl;
+                cout << "\n\RESULT MULTIPLY MATRIX: " << endl;
                 calc.printResult();
+
+            }
+            case 2: {
+
+                vector <thread> threads;
+
+                for (int i = beginLoop; i < matrixExampleSize; i++) {
+                    thread t(&Calculator::add, calc, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                cout << "\n\RESULT ADD MATRIX: " << endl;
+                calc.printResult();
+                
 
             }
 
