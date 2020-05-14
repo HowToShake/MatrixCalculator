@@ -7,6 +7,8 @@
 
 using namespace std;
 
+mutex mtx;
+
 class Matrix {
 private: 
      int matrixSize;
@@ -67,8 +69,6 @@ public:
 
 };
 
-mutex mtx;
-
 
 class Calculator {
 private:
@@ -113,7 +113,7 @@ public:
         mtx.unlock();
     }
 
-    
+
     void printResult() {
         for (int i = 0; i < this->matrixesSize; i++) {
             for (int j = 0; j < this->matrixesSize; j++) {
@@ -148,45 +148,65 @@ public:
 
 };
 
+class Menu {
+public:
+    void displayMenu() {
+
+        int matrixExampleSize = 3;
+
+        Matrix A = Matrix(matrixExampleSize);
+        A.setRandomElements();
+        cout << "FIRST MATRIX: " << endl;
+        A.printMatrix();
+
+        Matrix B = Matrix(matrixExampleSize);
+        B.setRandomElements();
+        cout << "\n\nSECOND MATRIX: " << endl;
+        B.printMatrix();
+
+
+        Calculator calc = Calculator(A, B);
+
+        cout << "\nChoose an option: " << endl;
+        cout << "1.Matrix multiply.\n" << endl;
+
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+
+                vector <thread> threads;
+
+                const int beginLoop = 0;
+                for (int i = beginLoop; i < matrixExampleSize; i++) {
+                    thread t(&Calculator::multiply, calc, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                cout << "\n\RESULT MATRIX: " << endl;
+                calc.printResult();
+
+            }
+
+        }
+
+
+    }
+};
+
 
 int main()
 {
-    int matrixExampleSize = 30;
-
-    Matrix A = Matrix(matrixExampleSize);
-    A.setRandomElements();
-    cout << "FIRST MATRIX: " << endl;
-    A.printMatrix();
-
-    Matrix B = Matrix(matrixExampleSize);
-    B.setRandomElements();
-    cout << "\n\nSECOND MATRIX: " << endl;
-    B.printMatrix();
-
-
-    Calculator calc = Calculator(A, B);
-
-
-    vector <thread> threads;
-
-    for (int i = 0; i < matrixExampleSize; i++) {
-        thread t(&Calculator::multiply, calc, i);
-        threads.push_back(move(t));
-    }
-
-    for (auto& t : threads) {
-        t.join();
-    }
-
-    //thread t1(&Calculator::multiply, calc,0);
-    //thread t2(&Calculator::multiply, calc,1);
     
+    Menu menu = Menu();
 
-    //t1.join();
-    //t2.join();
-    //int waiter;
-    //cin >> waiter;
-    calc.printResult();
+    menu.displayMenu();
+    
 
     return 0;
    
