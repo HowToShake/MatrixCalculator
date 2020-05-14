@@ -132,6 +132,24 @@ public:
     }
 
 
+    void substract(int threadNumber) {
+
+        mtx.lock();
+
+        for (int i = threadNumber; i < threadNumber + 1; i++) {
+            for (int j = 0; j < this->matrixesSize; j++) {
+
+                result[i][j] = 0;
+                result[i][j] = firstMatrix.getElement(i, j) - secondMatrix.getElement(i, j);
+
+            }
+        }
+
+        mtx.unlock();
+
+    }
+
+
     void printResult() {
         for (int i = 0; i < this->matrixesSize; i++) {
             for (int j = 0; j < this->matrixesSize; j++) {
@@ -174,7 +192,7 @@ public:
 
     void displayMenu() {
 
-        int matrixExampleSize = 3;
+        int matrixExampleSize = 5;
 
 
         Matrix A = Matrix(matrixExampleSize);
@@ -190,20 +208,20 @@ public:
 
         Calculator calc = Calculator(A, B);
         
-
         cout << "\nChoose an option: " << endl;
-        cout << "1.Matrix multiply.\n" << endl;
-        cout << "2.Matrix add.\n" << endl;
+        cout << "1.Matrix multiply." << endl;
+        cout << "2.Matrix add." << endl;
+        cout << "3.Matrix substract." << endl;
 
         int choice;
         cin >> choice;
 
         const int beginLoop = 0;
+        vector <thread> threads;
+
 
         switch (choice) {
             case 1: {
-
-                vector <thread> threads;
 
                 for (int i = beginLoop; i < matrixExampleSize; i++) {
                     thread t(&Calculator::multiply, calc, i);
@@ -215,12 +233,14 @@ public:
                 }
 
                 cout << "\n\RESULT MULTIPLY MATRIX: " << endl;
-                calc.printResult();
+                
+                break;
 
             }
+
             case 2: {
 
-                vector <thread> threads;
+                
 
                 for (int i = beginLoop; i < matrixExampleSize; i++) {
                     thread t(&Calculator::add, calc, i);
@@ -232,14 +252,34 @@ public:
                 }
 
                 cout << "\n\RESULT ADD MATRIX: " << endl;
-                calc.printResult();
                 
+                break;
 
             }
 
+            case 3: {
+                
+                
+
+                for (int i = beginLoop; i < matrixExampleSize; i++) {
+                    thread t(&Calculator::substract, calc, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                cout << "\n\RESULT SUBSTRACT MATRIX: " << endl;
+                
+                break;
+            }
+            
+        
+          
         }
 
-
+    calc.printResult();
     }
 };
 
