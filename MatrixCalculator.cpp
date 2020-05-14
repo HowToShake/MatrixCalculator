@@ -165,7 +165,7 @@ int main()
     Calculator calc = Calculator(A, B);
 
     thread t1(&Calculator::multiply, calc);
-    //thread t2(&Calculator::multiply, calc);
+    thread t2(&Calculator::multiply, calc);
 
     t1.join();
     //t2.join();
