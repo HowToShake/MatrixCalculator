@@ -1,0 +1,3 @@
+# MatrixCalculator
+
+Project for Uni.
