@@ -407,8 +407,8 @@ public:
 
 int main()
 {
-    RenderWindow window(VideoMode(453, 453), "HEJKA");
-
+    RenderWindow window(VideoMode(453, 453), "MatrixCalculator");
+    Menu menu = Menu();
     while (window.isOpen()) {
         Event e;
         while (window.pollEvent(e)) {
@@ -416,11 +416,17 @@ int main()
                 window.close();
             }
         }
+
+        window.clear(Color(0,0,0));
+
+        window.display();
+        menu.displayMenu();
+
     }
 
-    Menu menu = Menu();
+    //Menu menu = Menu();
 
-    menu.displayMenu();
+    //menu.displayMenu();
 
 
 
