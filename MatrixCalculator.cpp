@@ -4,17 +4,22 @@
 #include <random>
 #include <mutex>
 #include <cstdlib>
-
+#include <condition_variable>
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
 
 using namespace std;
+using namespace sf;
 
 mutex mtx;
+condition_variable cv;
+int minValue = 0;
 
 class Matrix {
 private: 
      int matrixSize;
      int** elements;
-     int maxValueToRandGenerator = 50000;
+     int maxValueToRandGenerator = 5;
 public:
     
     Matrix() {
@@ -89,10 +94,19 @@ private:
         this->theBiggestValue = localBiggest;
     }
 
-    //condition_variable smallestCond;
+    
     int theSmallestValue;
     int* theSmallestInRow;
-
+    void setTheSmallestValue() {
+        int localSmallest = theSmallestInRow[0];
+        for (int i = 0; i < matrixesSize; i++) {
+            if (theSmallestInRow[i] > localSmallest) {
+                localSmallest = theSmallestInRow[i];
+            }
+        }
+        this->theSmallestValue = localSmallest;
+    }
+   
 
 public:
     
@@ -113,6 +127,7 @@ public:
 
        this->theBiggestInRow = new int[matrixesSize];
        this->theSmallestInRow = new int[matrixesSize];
+       this->theSmallestValue = a.getElement(0, 0);
        
     }
 
@@ -192,10 +207,9 @@ public:
     }
 
 
-   /* void findTheSmallestValue(int threadNumber) {
-        unique_lock<mutex> lock(mtx);
-        smallestCond.wait(lock, theSmallestInRow[threadNumber] != 0);
-        int localSmallestValue = 0;
+    void findTheSmallestValueInRow(int threadNumber) {
+        mtx.lock();
+        int localSmallestValue = firstMatrix.getElement(0,0);
         for (int i = threadNumber; i < threadNumber + 1; i++) {
             for (int j = 0; j < this->matrixesSize; j++) {
 
@@ -208,26 +222,20 @@ public:
 
             }
         }
-        theSmallestInRow[threadNumber] = localSmallestValue;
-        lock.unlock();
-        smallestCond.notify_all();
+        theSmallestInRow[threadNumber] = theSmallestValue;
+        mtx.unlock();
+    }
 
 
-    }*/
-
+    int getTheSmallestValue() {
+        setTheSmallestValue();
+        return theSmallestValue;
+    }
 
 
     int getTheBiggestValue() {
         setTheBiggestValue();
         return theBiggestValue;
-    }
-
-
-    void printTheBiggestInRow() {
-        for (int i = 0; i < matrixesSize; i++) {
-            cout << theBiggestInRow[i] << " ";
-        }
-        cout << endl;
     }
 
 
@@ -373,9 +381,9 @@ public:
                 break;
             }
 
-            /*case 5: {
+            case 5: {
                 for (int i = beginLoop; i < matrixExampleSize; i++) {
-                    thread t(&Calculator::findTheSmallestValue, calc, i);
+                    thread t(&Calculator::findTheSmallestValueInRow, calc, i);
                     threads.push_back(move(t));
                 }
 
@@ -383,10 +391,10 @@ public:
                     t.join();
                 }
 
-                
+                cout << "\nTHE SMALLEST VALUE IN MATRIX: " << calc.getTheSmallestValue() << endl;
 
                 break;
-            }*/
+            }
             
         
           
@@ -399,11 +407,22 @@ public:
 
 int main()
 {
-    
+    RenderWindow window(VideoMode(453, 453), "HEJKA");
+
+    while (window.isOpen()) {
+        Event e;
+        while (window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                window.close();
+            }
+        }
+    }
+
     Menu menu = Menu();
 
     menu.displayMenu();
-    
+
+
 
     return 0;
    
