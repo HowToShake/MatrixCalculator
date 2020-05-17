@@ -5,6 +5,7 @@
 #include <mutex>
 #include <cstdlib>
 
+
 using namespace std;
 
 mutex mtx;
@@ -13,7 +14,7 @@ class Matrix {
 private: 
      int matrixSize;
      int** elements;
-     int maxValueToRandGenerator = 5;
+     int maxValueToRandGenerator = 50000;
 public:
     
     Matrix() {
@@ -76,6 +77,23 @@ private:
     int matrixesSize;
     int** result;
 
+    int theBiggestValue = 0;
+    int* theBiggestInRow;
+    void setTheBiggestValue() {
+        int localBiggest = theBiggestInRow[0];
+        for (int i = 0; i < matrixesSize; i++) {
+            if (theBiggestInRow[i] > localBiggest) {
+                localBiggest = theBiggestInRow[i];
+            }
+        }
+        this->theBiggestValue = localBiggest;
+    }
+
+    //condition_variable smallestCond;
+    int theSmallestValue;
+    int* theSmallestInRow;
+
+
 public:
     
 
@@ -92,6 +110,9 @@ public:
        }
 
        this->result = result;
+
+       this->theBiggestInRow = new int[matrixesSize];
+       this->theSmallestInRow = new int[matrixesSize];
        
     }
 
@@ -150,6 +171,66 @@ public:
     }
 
 
+    void findTheBiggestValueInRow(int threadNumber) {
+        
+        mtx.lock();
+        int localBiggestValue = 0;
+        for (int i = threadNumber; i < threadNumber + 1; i++) {
+            for (int j = 0; j < this->matrixesSize; j++) {
+
+                localBiggestValue = firstMatrix.getElement(i, j);
+                
+                
+                if (localBiggestValue > theBiggestValue) {
+                    this->theBiggestValue = localBiggestValue;
+                }
+
+            }
+        }
+        theBiggestInRow[threadNumber] = theBiggestValue;
+        mtx.unlock();
+    }
+
+
+   /* void findTheSmallestValue(int threadNumber) {
+        unique_lock<mutex> lock(mtx);
+        smallestCond.wait(lock, theSmallestInRow[threadNumber] != 0);
+        int localSmallestValue = 0;
+        for (int i = threadNumber; i < threadNumber + 1; i++) {
+            for (int j = 0; j < this->matrixesSize; j++) {
+
+                localSmallestValue = firstMatrix.getElement(i, j);
+
+
+                if (localSmallestValue < theSmallestValue) {
+                    this->theSmallestValue = localSmallestValue;
+                }
+
+            }
+        }
+        theSmallestInRow[threadNumber] = localSmallestValue;
+        lock.unlock();
+        smallestCond.notify_all();
+
+
+    }*/
+
+
+
+    int getTheBiggestValue() {
+        setTheBiggestValue();
+        return theBiggestValue;
+    }
+
+
+    void printTheBiggestInRow() {
+        for (int i = 0; i < matrixesSize; i++) {
+            cout << theBiggestInRow[i] << " ";
+        }
+        cout << endl;
+    }
+
+
     void printResult() {
         for (int i = 0; i < this->matrixesSize; i++) {
             for (int j = 0; j < this->matrixesSize; j++) {
@@ -192,7 +273,7 @@ public:
 
     void displayMenu() {
 
-        int matrixExampleSize = 5;
+        int matrixExampleSize = 20;
 
 
         Matrix A = Matrix(matrixExampleSize);
@@ -212,6 +293,8 @@ public:
         cout << "1.Matrix multiply." << endl;
         cout << "2.Matrix add." << endl;
         cout << "3.Matrix substract." << endl;
+        cout << "4.The biggest value." << endl;
+        cout << "5.The smallest value." << endl;
 
         int choice;
         cin >> choice;
@@ -233,7 +316,7 @@ public:
                 }
 
                 cout << "\n\RESULT MULTIPLY MATRIX: " << endl;
-                
+                calc.printResult();
                 break;
 
             }
@@ -252,7 +335,7 @@ public:
                 }
 
                 cout << "\n\RESULT ADD MATRIX: " << endl;
-                
+                calc.printResult();
                 break;
 
             }
@@ -271,15 +354,45 @@ public:
                 }
 
                 cout << "\n\RESULT SUBSTRACT MATRIX: " << endl;
-                
+                calc.printResult();
                 break;
             }
+
+            case 4: {
+                for (int i = beginLoop; i < matrixExampleSize; i++) {
+                    thread t(&Calculator::findTheBiggestValueInRow, calc, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                cout << "\nTHE BIGGEST VALUE IN MATRIX: " << calc.getTheBiggestValue() <<endl;
+
+                break;
+            }
+
+            /*case 5: {
+                for (int i = beginLoop; i < matrixExampleSize; i++) {
+                    thread t(&Calculator::findTheSmallestValue, calc, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                
+
+                break;
+            }*/
             
         
           
         }
 
-    calc.printResult();
+
     }
 };
 
