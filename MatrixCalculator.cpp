@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <condition_variable>
 #include <sstream>
+#include <vector>
 
 
 using namespace std;
@@ -13,13 +14,14 @@ using namespace std;
 
 mutex mtx;
 condition_variable cv;
-int minValue = 0;
+int maxValueSecondMatrix = 0;
+
 
 class Matrix {
 private: 
      int matrixSize;
      int** elements;
-     int maxValueToRandGenerator = 5;
+     int maxValueToRandGenerator = 1000;
 public:
     
     Matrix() {
@@ -76,6 +78,7 @@ public:
 };
 
 
+
 class Calculator {
 private:
     Matrix firstMatrix, secondMatrix;
@@ -100,7 +103,7 @@ private:
     void setTheSmallestValue() {
         int localSmallest = theSmallestInRow[0];
         for (int i = 0; i < matrixesSize; i++) {
-            if (theSmallestInRow[i] > localSmallest) {
+            if (theSmallestInRow[i] < localSmallest) {
                 localSmallest = theSmallestInRow[i];
             }
         }
@@ -128,7 +131,6 @@ public:
        this->theBiggestInRow = new int[matrixesSize];
        this->theSmallestInRow = new int[matrixesSize];
        this->theSmallestValue = a.getElement(0, 0);
-       
     }
 
 
@@ -239,6 +241,27 @@ public:
     }
 
 
+    
+    void  getTheBiggestValueForSecondMatrix() {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, [] {return (maxValueSecondMatrix != 0) ? true : false; });
+        cout << "MAX VALUE IN SECOND MATRIX IS: " << maxValueSecondMatrix << endl;
+    
+    }
+
+    void findTheBiggestValueForSecondMatrix(int threadNumber) {
+        lock_guard<mutex> lg(mtx);
+        for (int i = threadNumber; i < threadNumber + 1; i++) {
+            for (int j = 0; j < matrixesSize; j++) {
+                if (secondMatrix.getElement(i, j) > maxValueSecondMatrix) {
+                    maxValueSecondMatrix = secondMatrix.getElement(i, j);
+                }
+            }
+        }
+        cv.notify_all();
+    }
+
+
     void printResult() {
         for (int i = 0; i < this->matrixesSize; i++) {
             for (int j = 0; j < this->matrixesSize; j++) {
@@ -273,6 +296,9 @@ public:
 
 };
 
+
+
+
 class Menu {
 
 public:
@@ -303,6 +329,7 @@ public:
         cout << "3.Matrix substract." << endl;
         cout << "4.The biggest value." << endl;
         cout << "5.The smallest value." << endl;
+        cout << "6.The biggest value for second matrix." << endl;
 
         int choice;
         cin >> choice;
@@ -396,6 +423,21 @@ public:
                 break;
             }
             
+            case 6: {
+                for (int i = beginLoop; i < matrixExampleSize; i++) {
+                    thread t(&Calculator::findTheBiggestValueForSecondMatrix, calc, i);
+                    threads.push_back(move(t));
+                }
+                thread tEnd(&Calculator::getTheBiggestValueForSecondMatrix, calc);
+                threads.push_back(move(tEnd));
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                
+                
+
+            }
         
           
         }
