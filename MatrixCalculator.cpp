@@ -15,6 +15,9 @@ using namespace std;
 mutex mtx;
 condition_variable cv;
 int maxValueSecondMatrix = 0;
+int minValueSecondMatrix = INT_MAX;
+int counter;
+
 
 
 class Matrix {
@@ -131,6 +134,7 @@ public:
        this->theBiggestInRow = new int[matrixesSize];
        this->theSmallestInRow = new int[matrixesSize];
        this->theSmallestValue = a.getElement(0, 0);
+       counter = bufor * bufor;
     }
 
 
@@ -241,20 +245,42 @@ public:
     }
 
 
-    
-    void  getTheBiggestValueForSecondMatrix() {
+    void getTheBiggestValueForSecondMatrix() {
         unique_lock<mutex> ul(mtx);
-        cv.wait(ul, [] {return (maxValueSecondMatrix != 0) ? true : false; });
+        cv.wait(ul, [] {return (maxValueSecondMatrix != 0 && counter == 0) ? true : false; });
         cout << "MAX VALUE IN SECOND MATRIX IS: " << maxValueSecondMatrix << endl;
     
     }
+
 
     void findTheBiggestValueForSecondMatrix(int threadNumber) {
         lock_guard<mutex> lg(mtx);
         for (int i = threadNumber; i < threadNumber + 1; i++) {
             for (int j = 0; j < matrixesSize; j++) {
+                counter--;
                 if (secondMatrix.getElement(i, j) > maxValueSecondMatrix) {
                     maxValueSecondMatrix = secondMatrix.getElement(i, j);
+                }
+            }
+        }
+        cv.notify_all();
+    }
+
+
+    void getTheSmallestValueForSecondMatrix() {
+        unique_lock<mutex> ul(mtx);
+        cv.wait(ul, [] {return (minValueSecondMatrix != INT_MAX && counter == 0 ) ? true : false; });
+        cout << "MIN VALUE IN SECOND MATRIX IS: " << minValueSecondMatrix << endl;
+    }
+
+
+    void findTheSmallestValueForSecondMatrix(int threadNumber) {
+        lock_guard<mutex> lg(mtx);
+        for (int i = threadNumber; i < threadNumber + 1; i++) {
+            for (int j = 0; j < matrixesSize; j++) {
+                counter--;
+                if (secondMatrix.getElement(i, j) < minValueSecondMatrix) {
+                    minValueSecondMatrix = secondMatrix.getElement(i, j);
                 }
             }
         }
@@ -330,6 +356,7 @@ public:
         cout << "4.The biggest value." << endl;
         cout << "5.The smallest value." << endl;
         cout << "6.The biggest value for second matrix." << endl;
+        cout << "7.The smallest value for second matrix." << endl;
 
         int choice;
         cin >> choice;
@@ -434,12 +461,23 @@ public:
                     t.join();
                 }
 
-                
+                break;
                 
 
             }
         
-          
+            case 7: {
+                for (int i = beginLoop; i < matrixExampleSize; i++) {
+                    thread t(&Calculator::findTheSmallestValueForSecondMatrix, calc, i);
+                    threads.push_back(move(t));
+                }
+                thread tEnd(&Calculator::getTheSmallestValueForSecondMatrix, calc);
+                threads.push_back(move(tEnd));
+                for (auto& t : threads) {
+                    t.join();
+                }
+                break;
+            }
         }
 
 
