@@ -377,7 +377,7 @@ public:
                     t.join();
                 }
 
-                cout << "\n\RESULT MULTIPLY MATRIX: " << endl;
+                cout << "\nRESULT MULTIPLY MATRIX: " << endl;
                 calc.printResult();
                 break;
 
@@ -396,7 +396,7 @@ public:
                     t.join();
                 }
 
-                cout << "\n\RESULT ADD MATRIX: " << endl;
+                cout << "\nRESULT ADD MATRIX: " << endl;
                 calc.printResult();
                 break;
 
@@ -415,7 +415,7 @@ public:
                     t.join();
                 }
 
-                cout << "\n\RESULT SUBSTRACT MATRIX: " << endl;
+                cout << "\nRESULT SUBSTRACT MATRIX: " << endl;
                 calc.printResult();
                 break;
             }
