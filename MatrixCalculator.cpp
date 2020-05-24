@@ -83,7 +83,7 @@ public:
                 }
                 else {
                     temporary += to_string(this->elements[i][j]);
-                    temporary += "   ";
+                    temporary += "  ";
                 }
                                 
             }
@@ -326,6 +326,33 @@ public:
         }
     }
 
+    string getResult() {
+        string temporary = "";
+        for (int i = 0; i < this->matrixesSize; i++) {
+            for (int j = 0; j < this->matrixesSize; j++) {
+
+                if (this->result[i][j] < 10) {
+                    temporary += to_string(this->result[i][j]);
+                    temporary += "        ";
+                }
+                else if (this->result[i][j] >= 10 && this->result[i][j] <= 99) {
+                    temporary += to_string(this->result[i][j]);
+                    temporary += "      ";
+                }
+                else if (this->result[i][j] >= 100 && this->result[i][j] <= 999) {
+                    temporary += to_string(this->result[i][j]);
+                    temporary += "    ";
+                }
+                else {
+                    temporary += to_string(this->result[i][j]);
+                    temporary += "  ";
+                }
+
+            }
+            temporary += "\n";
+        }
+        return temporary;
+    }
 
     void printMatrix(int matrix) {
         Matrix displayed;
@@ -516,15 +543,25 @@ public:
 
 int main()
 {
-
-    Matrix matrixOne = Matrix(10);
+    int matrixSize = 14;
+    Matrix matrixOne = Matrix(matrixSize);
     matrixOne.setRandomElements();
-    cout << matrixOne.getMatrixValues() << endl;
+    
+    
+    Matrix matrixTwo = Matrix(matrixSize);
+    matrixTwo.setRandomElements();
 
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Matrix Calculator");
+    string menuString = "\nChoose an option : \n0.Reset.\n1.Matrix multiply.\n2.Matrix add.\n3.Matrix substract.\n4.The biggest value.\n5.The smallest value.\n6.The biggest value for second matrix.\n7.The smallest value for second matrix.\n";
+    
+
+    sf::RenderWindow window(sf::VideoMode(2120, 1080), "Matrix Calculator");
     
     sf::Text text;
     sf::Text secondText;
+    sf::Text firstTitle;
+    sf::Text secondTitle;
+    sf::Text result;
+    sf::Text menu;
 
     sf::Font font;
     font.loadFromFile("arial.ttf");
@@ -535,42 +572,239 @@ int main()
 
     secondText.setFont(font);
     secondText.setCharacterSize(24);
-    text.setFillColor(sf::Color::White);
+    secondText.setFillColor(sf::Color::White);
+
+    firstTitle.setFont(font);
+    firstTitle.setCharacterSize(24);
+    firstTitle.setFillColor(sf::Color::White);
+
+    result.setFont(font);
+    result.setCharacterSize(24);
+    result.setFillColor(sf::Color::White);
+
+    firstTitle.setFont(font);
+    firstTitle.setCharacterSize(48);
+    firstTitle.setFillColor(sf::Color::White);
+
+    secondTitle.setFont(font);
+    secondTitle.setCharacterSize(48);
+    secondTitle.setFillColor(sf::Color::White);
+
+    menu.setFont(font);
+    menu.setCharacterSize(24);
+    menu.setFillColor(sf::Color::White);
 
 
     text.setString(matrixOne.getMatrixValues());
-    secondText.setString("");
+    secondText.setString(matrixTwo.getMatrixValues());
+    firstTitle.setString("First matrix");
+    secondTitle.setString("Second matrix");
+    result.setString("WYNIK");
+    menu.setString(menuString);
 
+
+    const int beginLoop = 0;
+    vector <thread> threads;
+    int operation = 1;
 
     while (window.isOpen())
     {
+
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-        
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-            text.setString("BAJA");
-           
-        }
-        
-        
+
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && (sf::Mouse::getPosition(window).x <= 950 && sf::Mouse::getPosition(window).x >= 100) && (sf::Mouse::getPosition(window).y <= 500 && sf::Mouse::getPosition(window).y >= 50)) {
+
+                matrixOne.setRandomElements();
+                text.setString(matrixOne.getMatrixValues());
+
+            }
+
+
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && (sf::Mouse::getPosition(window).x <= 1900 && sf::Mouse::getPosition(window).x >= 1100) && (sf::Mouse::getPosition(window).y <= 500 && sf::Mouse::getPosition(window).y >= 50)) {
+
+                matrixTwo.setRandomElements();
+                secondText.setString(matrixTwo.getMatrixValues());
+
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) && operation != 0) {
+                operation--;
+                Calculator calculator = Calculator(matrixOne, matrixTwo);
+                
+                for (int i = beginLoop; i < matrixSize; i++) {
+                    thread t(&Calculator::multiply, calculator, i);
+                    threads.push_back(move(t));
+                }
+                
+                for (auto& t : threads) {
+                    t.join();
+                }
+                
+                string temporary = calculator.getResult();
+
+                result.setString(temporary);
+            }
+
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) && operation != 0) {
+                operation--;
+                Calculator calculator = Calculator(matrixOne, matrixTwo);
+
+                for (int i = beginLoop; i < matrixSize; i++) {
+                    thread t(&Calculator::add, calculator, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                string temporary = calculator.getResult();
+
+                result.setString(temporary);
+            }
+
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) && operation != 0) {
+                operation--;
+                Calculator calculator = Calculator(matrixOne, matrixTwo);
+
+                for (int i = beginLoop; i < matrixSize; i++) {
+                    thread t(&Calculator::substract, calculator, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                string temporary = calculator.getResult();
+
+                result.setString(temporary);
+            }
+
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4) && operation != 0) {
+                operation--;
+                Calculator calculator = Calculator(matrixOne, matrixTwo);
+
+                for (int i = beginLoop; i < matrixSize; i++) {
+                    thread t(&Calculator::findTheBiggestValueInRow, calculator, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                string temporary = to_string(calculator.getTheBiggestValue());
+
+                result.setString(temporary);
+            }
+
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num5) && operation != 0) {
+                operation--;
+                Calculator calculator = Calculator(matrixOne, matrixTwo);
+
+                for (int i = beginLoop; i < matrixSize; i++) {
+                    thread t(&Calculator::findTheSmallestValueInRow, calculator, i);
+                    threads.push_back(move(t));
+                }
+
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                string temporary = to_string(calculator.getTheSmallestValue());
+
+                result.setString(temporary);
+            }
+
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num6) && operation != 0) {
+                operation--;
+                Calculator calculator = Calculator(matrixOne, matrixTwo);
+
+                for (int i = beginLoop; i < matrixSize; i++) {
+                    thread t(&Calculator::findTheBiggestValueForSecondMatrix, calculator, i);
+                    threads.push_back(move(t));
+                }
+
+                thread tEnd(&Calculator::getTheBiggestValueForSecondMatrix, calculator);
+                threads.push_back(move(tEnd));
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                string temporary = to_string(maxValueSecondMatrix);
+
+                result.setString(temporary);
+            }
+
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num7) && operation != 0) {
+                operation--;
+                Calculator calculator = Calculator(matrixOne, matrixTwo);
+
+                for (int i = beginLoop; i < matrixSize; i++) {
+                    thread t(&Calculator::findTheSmallestValueForSecondMatrix, calculator, i);
+                    threads.push_back(move(t));
+                }
+                thread tEnd(&Calculator::getTheSmallestValueForSecondMatrix, calculator);
+                threads.push_back(move(tEnd));
+                for (auto& t : threads) {
+                    t.join();
+                }
+
+                string temporary = to_string(minValueSecondMatrix);
+
+                result.setString(temporary);
+            }
+
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0) && operation == 0) {
+                operation = 1;
+                threads.clear();
+                maxValueSecondMatrix = 0;
+                minValueSecondMatrix = INT_MAX;
+                counter = matrixSize * matrixSize;
+            }
+
+
         }
 
-       
+
+      
+
+
         text.setPosition(100, 100);
+        secondText.setPosition(1100, 100);
+        firstTitle.setPosition(100, 30);
+        secondTitle.setPosition(1100, 30);
+
+        result.setPosition(600, 500);
+        menu.setPosition(100, 500);
 
         window.clear();
 
 
         window.draw(text);
         window.draw(secondText);
+        window.draw(firstTitle);
+        window.draw(secondTitle);
+        window.draw(result);
+        window.draw(menu);
 
 
         window.display();
     }
+    
 
 
     //Menu menu = Menu();
