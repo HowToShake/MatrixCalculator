@@ -277,7 +277,7 @@ public:
     void getTheBiggestValueForSecondMatrix() {
         unique_lock<mutex> ul(mtx);
         cv.wait(ul, [] {return (maxValueSecondMatrix != 0 && counter == 0) ? true : false; });
-        cout << "MAX VALUE IN SECOND MATRIX IS: " << maxValueSecondMatrix << endl;
+        //cout << "MAX VALUE IN SECOND MATRIX IS: " << maxValueSecondMatrix << endl;
     
     }
 
@@ -299,7 +299,7 @@ public:
     void getTheSmallestValueForSecondMatrix() {
         unique_lock<mutex> ul(mtx);
         cv.wait(ul, [] {return (minValueSecondMatrix != INT_MAX && counter == 0 ) ? true : false; });
-        cout << "MIN VALUE IN SECOND MATRIX IS: " << minValueSecondMatrix << endl;
+        //cout << "MIN VALUE IN SECOND MATRIX IS: " << minValueSecondMatrix << endl;
     }
 
 
@@ -326,22 +326,39 @@ public:
         }
     }
 
+
     string getResult() {
         string temporary = "";
         for (int i = 0; i < this->matrixesSize; i++) {
             for (int j = 0; j < this->matrixesSize; j++) {
 
-                if (this->result[i][j] < 10) {
+                if (this->result[i][j] >= 0 && this->result[i][j] < 10){
                     temporary += to_string(this->result[i][j]);
                     temporary += "        ";
                 }
-                else if (this->result[i][j] >= 10 && this->result[i][j] <= 99) {
+                else if (this->result[i][j] >= 10 && this->result[i][j] <= 99){
                     temporary += to_string(this->result[i][j]);
                     temporary += "      ";
                 }
-                else if (this->result[i][j] >= 100 && this->result[i][j] <= 999) {
+                else if (this->result[i][j] >= 100 && this->result[i][j] <= 999){
                     temporary += to_string(this->result[i][j]);
                     temporary += "    ";
+                }
+                else if (this->result[i][j] <= -1 && this->result[i][j] >= -9) {
+                    temporary += to_string(this->result[i][j]);
+                    temporary += "       ";
+                }
+                else if (this->result[i][j] <= -10 && this->result[i][j] >= -99) {
+                    temporary += to_string(this->result[i][j]);
+                    temporary += "     ";
+                }
+                else if (this->result[i][j] <= -100 && this->result[i][j] >= -999) {
+                    temporary += to_string(this->result[i][j]);
+                    temporary += "   ";
+                }
+                else if (this->result[i][j] <= -1000 && this->result[i][j] >= -9999) {
+                    temporary += to_string(this->result[i][j]);
+                    temporary += " ";
                 }
                 else {
                     temporary += to_string(this->result[i][j]);
@@ -353,6 +370,7 @@ public:
         }
         return temporary;
     }
+
 
     void printMatrix(int matrix) {
         Matrix displayed;
@@ -486,7 +504,7 @@ public:
                     t.join();
                 }
 
-                cout << "\nTHE BIGGEST VALUE IN MATRIX: " << calc.getTheBiggestValue() <<endl;
+                //cout << "\nTHE BIGGEST VALUE IN MATRIX: " << calc.getTheBiggestValue() <<endl;
 
                 break;
             }
@@ -501,7 +519,7 @@ public:
                     t.join();
                 }
 
-                cout << "\nTHE SMALLEST VALUE IN MATRIX: " << calc.getTheSmallestValue() << endl;
+                //cout << "\nTHE SMALLEST VALUE IN MATRIX: " << calc.getTheSmallestValue() << endl;
 
                 break;
             }
@@ -551,7 +569,7 @@ int main()
     Matrix matrixTwo = Matrix(matrixSize);
     matrixTwo.setRandomElements();
 
-    string menuString = "\nChoose an option : \n0.Reset.\n1.Matrix multiply.\n2.Matrix add.\n3.Matrix substract.\n4.The biggest value.\n5.The smallest value.\n6.The biggest value for second matrix.\n7.The smallest value for second matrix.\n";
+    string menuString = "Choose an option : \n0.Reset.\n1.Matrix multiply.\n2.Matrix add.\n3.Matrix substract.\n4.The biggest value.\n5.The smallest value.\n6.The biggest value for second matrix.\n7.The smallest value for second matrix.\n";
     
 
     sf::RenderWindow window(sf::VideoMode(2120, 1080), "Matrix Calculator");
@@ -599,7 +617,7 @@ int main()
     secondText.setString(matrixTwo.getMatrixValues());
     firstTitle.setString("First matrix");
     secondTitle.setString("Second matrix");
-    result.setString("WYNIK");
+    result.setString("RESULT");
     menu.setString(menuString);
 
 
@@ -643,6 +661,7 @@ int main()
                 counter = matrixSize * matrixSize;
 
             }
+
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) && operation != 0) {
                 operation--;
@@ -800,8 +819,8 @@ int main()
         firstTitle.setPosition(100, 30);
         secondTitle.setPosition(1100, 30);
 
-        result.setPosition(600, 500);
-        menu.setPosition(100, 500);
+        result.setPosition(600, 550);
+        menu.setPosition(100, 550);
 
         window.clear();
 
