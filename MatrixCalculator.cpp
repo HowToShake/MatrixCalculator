@@ -607,6 +607,8 @@ int main()
     vector <thread> threads;
     int operation = 1;
 
+    
+
     while (window.isOpen())
     {
 
@@ -621,6 +623,11 @@ int main()
 
                 matrixOne.setRandomElements();
                 text.setString(matrixOne.getMatrixValues());
+                operation = 1;
+                threads.clear();
+                maxValueSecondMatrix = 0;
+                minValueSecondMatrix = INT_MAX;
+                counter = matrixSize * matrixSize;
 
             }
 
@@ -629,6 +636,11 @@ int main()
 
                 matrixTwo.setRandomElements();
                 secondText.setString(matrixTwo.getMatrixValues());
+                operation = 1;
+                threads.clear();
+                maxValueSecondMatrix = 0;
+                minValueSecondMatrix = INT_MAX;
+                counter = matrixSize * matrixSize;
 
             }
 
