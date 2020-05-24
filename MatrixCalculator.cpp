@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <sstream>
 #include <vector>
+#include <SFML/Graphics.hpp>
 
 
 using namespace std;
@@ -61,6 +62,34 @@ public:
             }
             cout << "\n";
         }
+    }
+
+    string getMatrixValues() {
+        string temporary = "";
+        for (int i = 0; i < this->matrixSize; i++) {
+            for (int j = 0; j < this->matrixSize; j++) {
+                
+                if (this->elements[i][j] < 10) {
+                    temporary += to_string(this->elements[i][j]);
+                    temporary += "        ";
+                }
+                else if (this->elements[i][j] >= 10 && this->elements[i][j] <= 99) {
+                    temporary += to_string(this->elements[i][j]);
+                    temporary += "      ";
+                }
+                else if (this->elements[i][j] >= 100 && this->elements[i][j] <= 999) {
+                    temporary += to_string(this->elements[i][j]);
+                    temporary += "    ";
+                }
+                else {
+                    temporary += to_string(this->elements[i][j]);
+                    temporary += "   ";
+                }
+                                
+            }
+            temporary += "\n";
+        }
+        return temporary;
     }
 
     int getElement(int row, int column) {
@@ -487,7 +516,64 @@ public:
 
 int main()
 {
-    Menu menu = Menu();
-    menu.displayMenu();
+
+    Matrix matrixOne = Matrix(10);
+    matrixOne.setRandomElements();
+    cout << matrixOne.getMatrixValues() << endl;
+
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Matrix Calculator");
+    
+    sf::Text text;
+    sf::Text secondText;
+
+    sf::Font font;
+    font.loadFromFile("arial.ttf");
+
+    text.setFont(font);
+    text.setCharacterSize(24);
+    text.setFillColor(sf::Color::White);
+
+    secondText.setFont(font);
+    secondText.setCharacterSize(24);
+    text.setFillColor(sf::Color::White);
+
+
+    text.setString(matrixOne.getMatrixValues());
+    secondText.setString("");
+
+
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        
+
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            text.setString("BAJA");
+           
+        }
+        
+        
+        }
+
+       
+        text.setPosition(100, 100);
+
+        window.clear();
+
+
+        window.draw(text);
+        window.draw(secondText);
+
+
+        window.display();
+    }
+
+
+    //Menu menu = Menu();
+    //menu.displayMenu();
     return 0;
 }
