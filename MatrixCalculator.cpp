@@ -561,13 +561,25 @@ public:
 
 int main()
 {
-    int matrixSize = 14;
+    int matrixSize = 19;
     Matrix matrixOne = Matrix(matrixSize);
     matrixOne.setRandomElements();
     
     
     Matrix matrixTwo = Matrix(matrixSize);
     matrixTwo.setRandomElements();
+
+    int fontSize;
+    if (matrixSize < 20) {
+        fontSize = 18;
+    }
+    else if(matrixSize >= 20 ) {
+        fontSize = 16;
+    }
+    else {
+        fontSize = 24;
+    }
+
 
     string menuString = "Choose an option : \n0.Reset.\n1.Matrix multiply.\n2.Matrix add.\n3.Matrix substract.\n4.The biggest value.\n5.The smallest value.\n6.The biggest value for second matrix.\n7.The smallest value for second matrix.\n";
     
@@ -585,11 +597,11 @@ int main()
     font.loadFromFile("arial.ttf");
 
     text.setFont(font);
-    text.setCharacterSize(24);
+    text.setCharacterSize(fontSize);
     text.setFillColor(sf::Color::White);
 
     secondText.setFont(font);
-    secondText.setCharacterSize(24);
+    secondText.setCharacterSize(fontSize);
     secondText.setFillColor(sf::Color::White);
 
     firstTitle.setFont(font);
@@ -597,7 +609,7 @@ int main()
     firstTitle.setFillColor(sf::Color::White);
 
     result.setFont(font);
-    result.setCharacterSize(24);
+    result.setCharacterSize(fontSize);
     result.setFillColor(sf::Color::White);
 
     firstTitle.setFont(font);
